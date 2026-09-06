@@ -24,17 +24,25 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: arn:aws:iam::353452453400:role/eks_project-github-actions
+          role-to-assume: arn:aws:iam::353452453400:role/eks_project-aws-lb-controller-ee3933ab33da41b2f6bc3d983a
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and push image
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: eks_project-app
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          IMAGE_TAG=${GITHUB_SHA}
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG ./app
-          docker push $ECR_REPOSITORY:$IMAGE_TAG
+          echo "Registry: $ECR_REGISTRY"
+          echo "Repository: $ECR_REPOSITORY"
+          echo "Tag: $IMAGE_TAG"
+
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./app
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Configure kubectl
         run: |
