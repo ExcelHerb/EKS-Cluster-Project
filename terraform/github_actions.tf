@@ -7,6 +7,28 @@ resource "aws_iam_openid_connect_provider" "github" {
   ]
 }
 
+resource "aws_eks_access_entry" "github_actions" {
+  cluster_name  = module.eks.cluster_name
+  principal_arn = aws_iam_role.github_actions.arn
+  type          = "STANDARD"
+}
+
+resource "aws_eks_access_policy_association" "github_actions" {
+  cluster_name  = module.eks.cluster_name
+  principal_arn = aws_iam_role.github_actions.arn
+
+  policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
+
+  access_scope {
+    type       = "namespace"
+    namespaces = ["default"]
+  }
+
+  depends_on = [
+    aws_eks_access_entry.github_actions
+  ]
+}
+
 # Trust policy allowing GitHub Actions to assume the role
 data "aws_iam_policy_document" "github_actions_assume_role" {
   statement {
