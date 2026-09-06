@@ -32,11 +32,13 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
     }
 
     condition {
-      test     = "StringEquals"
+      test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
 
       values = [
-        "repo:ExcelHerb/EKS-Cluster-Project:ref:refs/heads/main"
+        "repo:ExcelHerb/EKS-Cluster-Project:*",
+        "repo:excelherb/EKS-Cluster-Project:*",
+        "repo:excelherb/eks-cluster-project:*"
       ]
     }
   }
