@@ -11,6 +11,15 @@ module "eks" {
 
   enable_cluster_creator_admin_permissions = true
 
+  addons = {
+    vpc-cni = {
+      before_compute = true
+    }
+
+    coredns    = {}
+    kube-proxy = {}
+  }
+
   eks_managed_node_groups = {
     demo = {
       min_size     = 1
